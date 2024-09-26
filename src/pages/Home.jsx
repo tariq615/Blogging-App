@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import appwriteService from "../appwrite/config";
 import { Container, PostCard } from "../components";
 import { useSelector } from "react-redux";
+import { useLoaderData } from "react-router-dom";
 
 function Home() {
-  const [posts, setPosts] = useState([]);
+  const posts = useLoaderData()
+
 
   useEffect(() => {
     const hasLoggedIn = sessionStorage.getItem("hasLoggedIn");
@@ -15,9 +17,19 @@ function Home() {
   }, []);
 
   const authStatus = useSelector((state) => state.auth.status);
+  const userData = useSelector((state) => state.auth.userData);
+  
+  // When user logs in:
+  useEffect(() => {
+    if (userData && userData.$id) {
+      sessionStorage.setItem('userData', JSON.stringify(userData));
+    }
+  }, [userData]);  // Run this whenever userData changes
+  
 
-  // console.log(authStatus);
+  
 
+/* const [posts, setPosts] = useState([]);    withoutloader
   useEffect(() => {
     if (authStatus) {
       appwriteService.getPosts().then((posts) => {
@@ -26,7 +38,7 @@ function Home() {
         }
       });
     }
-  }, []);
+  }, []); */
 
   if (authStatus && posts.length === 0) {
     return (
@@ -74,3 +86,13 @@ function Home() {
 }
 
 export default Home;
+
+
+export const postsLoaderData = async () => {
+  return appwriteService
+    .getPosts()
+    .then((posts) => posts.documents || [])
+    .catch((error) => {
+      console.error('Error fetching posts:', error);
+    });
+};
