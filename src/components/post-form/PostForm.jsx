@@ -1,10 +1,10 @@
-import React, {useEffect}from "react";
+import React, { useEffect, useCallback } from "react";
 import appwriteService from "../../appwrite/config";
 import { useForm } from "react-hook-form";
-import { useCallback } from "react";
 import { SelectInput, Button, Input, RTE } from "../";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { getPost } from "../../store/postSlice"; // Import the action to update posts in Redux
 
 export default function PostForm({ post }) {
   const { register, handleSubmit, watch, setValue, control, getValues } =
@@ -16,79 +16,91 @@ export default function PostForm({ post }) {
         status: post?.status || "active",
       },
     });
+console.log(post);
 
   const navigate = useNavigate();
-  const userData = useSelector((state) => state.auth.userData);
+  const dispatch = useDispatch();
+  const userData = useSelector((state) => state.auth.userData); // Get user data from Redux
 
-useEffect(() => {
-  if (userData) {
-    console.log("UserData available: ", userData);
-    // Do something with userData
-  }else{
-    console.log('Not');
-    
-  }
-}, [userData]);
-
-  const submit = async (data) => {
-    if (post) {
-      const file = data.image[0]
-        ? appwriteService.uploadFile(data.image[0])
-        : null;
-
-      if (file) {
-        appwriteService.deleteFile(post.featuredimage);
-      }
-
-      const updbpost = await appwriteService.updatePost(post.$id, {
-        ...data,
-        featuredimage: file ? file.$id : undefined,
-      });
-
-      if (updbpost) {
-        navigate(`/post/${updbpost.$id}`);
-      }
+  // Ensure that user data is available
+  useEffect(() => {
+    if (userData) {
+      console.log("UserData available: ", userData);
     } else {
-      const file = data.image[0]
-        ? await appwriteService.uploadFile(data.image[0])
-        : "please select the image";
-      // console.log(file);
+      console.log('No user data found.');
+    }
+  }, [userData]);
 
-      if (file) {
-        const fileId = file.$id;
-        data.featuredimage = fileId;
-        // console.log(fileId);
-        // console.log(data);
+  // Function to refresh posts in Redux and sessionStorage
+  const refreshPosts = async () => {
+    try {
+      const posts = await appwriteService.getPosts();
+      const postData = posts.documents || [];
+      // Update Redux store with latest posts
+      dispatch(getPost(postData));
+      // Store posts in sessionStorage
+      sessionStorage.setItem('postData', JSON.stringify(postData));
+    } catch (error) {
+      console.error('Error fetching posts:', error);
+    }
+  };
 
-        console.log(userData);
-
-        const dbpost = await appwriteService.createPost({
-          ...data,
-          userid: userData.$id,
-        });
-
-        if (dbpost) {
-          navigate(`/post/${dbpost.$id}`);
+  // Submit function to create or update a post
+  const submit = async (data) => {
+    try {
+      let file;
+      if (data.image[0]) {
+        file = await appwriteService.uploadFile(data.image[0]);
+        if (post) {
+          await appwriteService.deleteFile(post.featuredimage); // Delete old image if post is updated
         }
       }
+
+      if (post) {
+        // Update existing post
+        const updatedPost = await appwriteService.updatePost(post.$id, {
+          ...data,
+          featuredimage: file ? file.$id : post.featuredimage,
+        });
+
+        if (updatedPost) {
+          await refreshPosts(); // Refresh posts after updating
+          navigate(`/post/${updatedPost.$id}`); // Navigate to updated post
+        }
+      } else {
+        // Create new post
+        if (file) {
+          const fileId = file.$id
+          data.featuredimage = fileId;
+        }
+
+        const newPost = await appwriteService.createPost({
+          ...data,
+          userid: userData.$id, // Assign post to the logged-in user
+        });
+
+        if (newPost) {
+          await refreshPosts(); // Refresh posts after creating
+          navigate(`/post/${newPost.$id}`); // Navigate to new post
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting post:', error);
     }
   };
 
   const slugTransform = useCallback((value) => {
-    if (value && typeof value === "string")
-      return value
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-zA-Z\d\s]+/g, "-")
-        .replace(/\s/g, "-");
-
-    return "";
+    return value
+      ?.trim()
+      .toLowerCase()
+      .replace(/[^a-zA-Z\d\s]+/g, "-")
+      .replace(/\s/g, "-") || "";
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const subscription = watch((value, { name }) => {
       if (name === "title") {
-        setValue("slug", slugTransform(value.title, { shouldValidate: true }));
+        setValue("slug", slugTransform(value.title), { shouldValidate: true });
       }
     });
     return () => {

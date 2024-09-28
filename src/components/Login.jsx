@@ -1,10 +1,12 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { Logo, Input, Button } from "./index";
 import { Link, useNavigate } from "react-router-dom";
 import authService from "../appwrite/auth";
+import appwriteService from '../appwrite/config'
 import { useForm } from "react-hook-form";
 import { login as authLogin } from "../store/authSlice";
-import { useDispatch} from "react-redux";
+import { getPost } from "../store/postSlice";
+import { useDispatch } from "react-redux";
 
 function Login() {
   const navigate = useNavigate();
@@ -16,14 +18,31 @@ function Login() {
     setError("");
     try {
       const session = await authService.login(data);
+      
       if (session) {
         const userData = await authService.getCurrentUser();
-        // console.log(userData);
-        if (userData){
-           dispatch(authLogin(userData));
-           sessionStorage.setItem("hasLoggedIn", "true");
-          navigate("/");
 
+        // Fetch posts and store them in sessionStorage
+        const postData = await appwriteService.getPosts()
+          .then((posts) => {
+            const data = posts.documents || [];
+            // Store postData in sessionStorage
+            sessionStorage.setItem('postData', JSON.stringify(data));
+            return data;
+          })
+          .catch((error) => {
+            console.error('Error fetching posts:', error);
+            return []; // Return an empty array if there's an error
+          });
+  
+        console.log(postData);
+
+        if (userData) {
+          // Dispatch actions to store user and post data in Redux
+          dispatch(getPost(postData));
+          dispatch(authLogin(userData));
+          sessionStorage.setItem("hasLoggedIn", "true");
+          navigate("/");
         }
       }
     } catch (error) {
@@ -33,9 +52,7 @@ function Login() {
 
   return (
     <div className="flex items-center justify-center w-full">
-      <div
-        className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}
-      >
+      <div className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}>
         <div className="mb-2 flex justify-center">
           <span className="inline-block w-full max-w-[100px]">
             <Logo width="100%" />
@@ -46,10 +63,7 @@ function Login() {
         </h2>
         <p className="mt-2 text-center text-base text-black/60">
           Don&apos;t have any account?&nbsp;
-          <Link
-            to="/signup"
-            className="font-medium text-primary transition-all duration-200 hover:underline"
-          >
+          <Link to="/signup" className="font-medium text-primary transition-all duration-200 hover:underline">
             Sign Up
           </Link>
         </p>

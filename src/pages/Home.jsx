@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import appwriteService from "../appwrite/config";
+import React, { useEffect } from "react";
 import { Container, PostCard } from "../components";
-import { useSelector } from "react-redux";
-import { useLoaderData } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { getPost } from "../store/postSlice";
 
 function Home() {
-  const posts = useLoaderData()
-
+  const dispatch = useDispatch();
+  const postData = useSelector((state) => state.post.posts);
+  const authStatus = useSelector((state) => state.auth.status);
 
   useEffect(() => {
     const hasLoggedIn = sessionStorage.getItem("hasLoggedIn");
@@ -16,31 +16,31 @@ function Home() {
     }
   }, []);
 
-  const authStatus = useSelector((state) => state.auth.status);
-  const userData = useSelector((state) => state.auth.userData);
-  
-  // When user logs in:
+    // postsData function now defined in the same file
+    const postsData = async () => {
+      try {
+        const posts = await appwriteService.getPosts();
+        return posts.documents || [];
+      } catch (error) {
+        console.error('Error fetching posts:', error);
+        return [];
+      }
+    };
+    
   useEffect(() => {
-    if (userData && userData.$id) {
-      sessionStorage.setItem('userData', JSON.stringify(userData));
-    }
-  }, [userData]);  // Run this whenever userData changes
-  
-
-  
-
-/* const [posts, setPosts] = useState([]);    withoutloader
-  useEffect(() => {
-    if (authStatus) {
-      appwriteService.getPosts().then((posts) => {
-        if (posts) {
-          setPosts(posts.documents);
-        }
+    // Fetch posts from sessionStorage or API if necessary
+    const storedPosts = sessionStorage.getItem('postData');
+    if (storedPosts) {
+      dispatch(getPost(JSON.parse(storedPosts)));
+    } else if (authStatus) {
+      postsData().then((posts) => {
+        dispatch(getPost(posts));
+        sessionStorage.setItem('postData', JSON.stringify(posts));
       });
     }
-  }, []); */
+  }, [dispatch, authStatus]);
 
-  if (authStatus && posts.length === 0) {
+  if (authStatus && postData.length === 0) {
     return (
       <div className="w-full py-8 mt-4 text-center">
         <Container>
@@ -59,7 +59,7 @@ function Home() {
       <div className="w-full py-8">
         <Container>
           <div className="flex flex-wrap">
-            {posts.map((post) => (
+            {postData.map((post) => (
               <div key={post.$id} className="p-2 w-1/4">
                 <PostCard {...post} />
               </div>
@@ -68,31 +68,21 @@ function Home() {
         </Container>
       </div>
     );
-  } else{
+  } else {
     return (
-        <div className="w-full py-8 mt-4 text-center">
-          <Container>
-            <div className="flex flex-wrap">
-              <div className="p-2 w-full">
-                <h1 className="text-2xl font-bold hover:text-gray-500">
-                  Login to post
-                </h1>
-              </div>
+      <div className="w-full py-8 mt-4 text-center">
+        <Container>
+          <div className="flex flex-wrap">
+            <div className="p-2 w-full">
+              <h1 className="text-2xl font-bold hover:text-gray-500">
+                Login to post
+              </h1>
             </div>
-          </Container>
-        </div>
-      );
+          </div>
+        </Container>
+      </div>
+    );
   }
 }
 
 export default Home;
-
-
-export const postsLoaderData = async () => {
-  return appwriteService
-    .getPosts()
-    .then((posts) => posts.documents || [])
-    .catch((error) => {
-      console.error('Error fetching posts:', error);
-    });
-};

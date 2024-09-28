@@ -4,12 +4,14 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import appwriteService from "../appwrite/config";
 import { Button, Container } from "../components";
 import parse from "html-react-parser";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { removePost } from "../store/postSlice";
 
 export default function Post() {
     const [post, setPost] = useState(null);
     const { slug } = useParams();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const userData = useSelector((state) => state.auth.userData);
     console.log(userData);
@@ -30,11 +32,25 @@ export default function Post() {
     const deletePost = () => {
         appwriteService.deletePost(post.$id).then((status) => {
             if (status) {
+                // Delete the associated file from Appwrite if the post is successfully deleted
                 appwriteService.deleteFile(post.featuredimage);
+
+                // Dispatch an action to remove the post from the Redux store
+                dispatch(removePost(post.$id));
+
+                // Update sessionStorage by removing the deleted post
+                const storedPosts = sessionStorage.getItem('postData');
+                if (storedPosts) {
+                    const parsedPosts = JSON.parse(storedPosts);
+                    const updatedPosts = parsedPosts.filter((p) => p.$id !== post.$id);
+                    sessionStorage.setItem('postData', JSON.stringify(updatedPosts));
+                }
+
+                // Navigate back to home or desired route after deletion
                 navigate("/");
             }
-        });
-    };
+        })
+    }
 
     return post ? (
         <div className="py-8">
