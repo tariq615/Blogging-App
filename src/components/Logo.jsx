@@ -1,9 +1,9 @@
 import React from 'react'
 
-function Logo({width = '100px'}) {
+function Logo({width = '70px'}) {
   return (
     <div className=''>
-          <img src='/images/self/blog.png' width={width} alt="kd " srcset="" />
+          <img src='/images/self/blog.png' width={width} alt="" srcset="" />
         </div>
   )
 }
