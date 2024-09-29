@@ -61,7 +61,7 @@ function Header() {
         <svg
           xmlns="http://www.w3.org/2000/svg"
           id="menu-button"
-          class="h-6 w-6 cursor-pointer md:hidden block"
+          class="h-8 w-8 cursor-pointer md:hidden block"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
