@@ -1,6 +1,6 @@
 import React from 'react'
 
-function Logo({width = '70px'}) {
+function Logo({width = '100px'}) {
   return (
     <div className=''>
           <img src='/images/self/blog.png' width={width} alt="" srcset="" />
