@@ -11,6 +11,7 @@ function AllPosts() {
 
   // Get userData from Redux store
   const userData = useSelector((state) => state.auth.userData);
+  const authStatus = useSelector((state) => state.auth.status);
 
   useEffect(() => {
     // Check if post data exists in sessionStorage
@@ -38,9 +39,24 @@ function AllPosts() {
     }
   }, [userData]); // Ensure useEffect runs when the user's data is available
 
+  if (authStatus && myPosts.length === 0) {
+    return (
+      <div className="w-full py-8 mt-24 text-center">
+        <Container>
+          <div className="flex flex-wrap">
+            <div className="p-2 w-full">
+              <h1 className="text-2xl font-bold hover:text-gray-500">
+                No posts yet
+              </h1>
+            </div>
+          </div>
+        </Container>
+      </div>
+    );
+  } else if (authStatus) {
   return (
     <Container>
-      <div className="flex flex-wrap gap-5 content-center justify-center py-4 ">
+      <div className="flex flex-wrap gap-5 content-center justify-center py-4 mt-24">
         {myPosts.map((post) => (
           <PostCard {...post} />
         ))}
@@ -50,5 +66,5 @@ function AllPosts() {
     </Container>
   );
 }
-
+}
 export default AllPosts;

@@ -11,7 +11,7 @@ export default function PostForm({ post }) {
     useForm({
       defaultValues: {
         title: post?.title || "",
-        slug: post?.slug || "",
+        slug: post?.$id || "",
         content: post?.content || "",
         status: post?.status || "active",
       },
@@ -56,6 +56,7 @@ console.log(post);
         }
       }
 
+      
       if (post) {
         // Update existing post
         const updatedPost = await appwriteService.updatePost(post.$id, {
@@ -109,7 +110,7 @@ console.log(post);
   }, [watch, setValue, slugTransform]);
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap">
+    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap mt-14">
       <div className="w-2/3 px-2">
         <Input
           label="Title :"

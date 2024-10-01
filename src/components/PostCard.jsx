@@ -8,7 +8,7 @@ function PostCard({ $id, title, featuredimage, content }) {
     <Link to={`post/${$id}`}>
       <div
         key={$id}
-        className=" bg-white border border-gray-200 rounded-lg shadow dark:bg-neutral-50 w-[400px] h-[550px]"
+        className=" bg-white border border-gray-200 rounded-lg shadow dark:bg-neutral-100 w-[400px] h-[550px]"
       >
         <img
           className="rounded-t-lg  w-full h-[350px] object-cover"
