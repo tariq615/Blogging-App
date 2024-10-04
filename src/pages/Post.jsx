@@ -53,16 +53,25 @@ export default function Post() {
     }
 
     return post ? (
-        <div className="py-8">
-            <Container>
-                <div className="w-full flex justify-center mb-4 relative border rounded-xl p-2">
-                    <img
-                        src={appwriteService.getFilePreview(post.featuredimage)}
-                        alt={post.title}
-                        className="rounded-xl"
-                    />
+        <div className=" mt-16 ">
+            <div className="max-w-screen-lg  mx-auto p-5 sm:p-10 md:p-16 border">
+          <div className="mb-10 rounded overflow-hidden flex flex-col mx-auto">
+            <Link
+              to=""
+              class="max-w-3xl mx-auto text-xl sm:text-4xl font-semibold inline-block hover:text-indigo-600 transition duration-500 ease-in-out  mb-2"
+            >
+              {post.title}
+            </Link>
 
-                    {isAuthor && (
+            <div className="relative">
+              <Link to="">
+                <img
+                  className="w-full rounded-lg"
+                  src={appwriteService.getFilePreview(post.featuredimage)}
+                  alt={post.title}
+                />
+              </Link>
+              {isAuthor && (
                         <div className="absolute right-6 top-6">
                             <Link to={`/edit-post/${post.$id}`}>
                                 <Button bgColor="bg-green-500" className="mr-3">
@@ -74,15 +83,15 @@ export default function Post() {
                             </Button>
                         </div>
                     )}
-                </div>
-                <div className="w-full mb-6">
-                    <h1 className="text-2xl font-bold">{post.title}</h1>
-                </div>
-                <div className="browser-css">
-                    {parse(post.content)}
-                    
-                    </div>
-            </Container>
-        </div>
+            </div>
+            <p class="text-gray-700 py-5 text-base leading-8 browser-css ">
+            {parse(post.content)}
+            </p>
+            <hr />
+          </div>
+        </div> 
+     </div>
     ) : null;
 }
+
+

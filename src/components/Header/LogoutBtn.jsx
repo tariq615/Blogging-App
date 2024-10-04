@@ -13,6 +13,7 @@ function LogoutBtn() {
       .then(() => {
         dispatch(logout());
         dispatch(clearPosts())
+        localStorage.removeItem('postData');
       })
       .catch((error) => {
         throw error;

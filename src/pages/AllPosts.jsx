@@ -14,8 +14,8 @@ function AllPosts() {
   const authStatus = useSelector((state) => state.auth.status);
 
   useEffect(() => {
-    // Check if post data exists in sessionStorage
-    const storedPosts = sessionStorage.getItem("postData");
+    // Check if post data exists in localStorage
+    const storedPosts = localStorage.getItem("postData");
 
     if (storedPosts && userData) {
       // Use cached posts and filter to show only the current user's posts
@@ -31,7 +31,7 @@ function AllPosts() {
         .then((posts) => {
           const postData = posts.documents || [];
           setMyPosts(postData); // Update state with fetched posts
-          sessionStorage.setItem("postData", JSON.stringify(postData)); // Cache posts in sessionStorage
+          localStorage.setItem("postData", JSON.stringify(postData)); // Cache posts in localStorage
         })
         .catch((error) => {
           console.error("Error fetching posts:", error);

@@ -8,6 +8,7 @@ function Home() {
   const postData = useSelector((state) => state.post.posts);
   const authStatus = useSelector((state) => state.auth.status);
 
+  // In case of reload 
   useEffect(() => {
     const hasLoggedIn = sessionStorage.getItem("hasLoggedIn");
     if (hasLoggedIn === "true") {
@@ -15,6 +16,7 @@ function Home() {
       window.location.reload(); // Reload only once after login
     }
   }, []);
+
 
   // postsData function now defined in the same file
   const postsData = async () => {
@@ -28,17 +30,18 @@ function Home() {
   };
 
   useEffect(() => {
-    // Fetch posts from sessionStorage or API if necessary
-    const storedPosts = sessionStorage.getItem("postData");
+    // Fetch posts from localStorage or API if necessary
+    const storedPosts = localStorage.getItem("postData");
     if (storedPosts) {
       dispatch(getPost(JSON.parse(storedPosts)));
     } else if (authStatus) {
       postsData().then((posts) => {
         dispatch(getPost(posts));
-        sessionStorage.setItem("postData", JSON.stringify(posts));
+        localStorage.setItem("postData", JSON.stringify(posts));
       });
     }
   }, [dispatch, authStatus]);
+  
 
   if (authStatus && postData.length === 0) {
     return (

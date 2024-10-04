@@ -54,6 +54,7 @@ function Header() {
           text-lg text-gray-700
           bg-white
           fixed
+          z-10
         "
       >
         <Link to={"/"}>

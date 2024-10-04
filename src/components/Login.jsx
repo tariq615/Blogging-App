@@ -17,17 +17,17 @@ function Login() {
   const login = async (data) => {
     setError("");
     try {
-      const session = await authService.login(data);
+      const local = await authService.login(data);
       
-      if (session) {
+      if (local) {
         const userData = await authService.getCurrentUser();
 
-        // Fetch posts and store them in sessionStorage
+        // Fetch posts and store them in localStorage
         const postData = await appwriteService.getPosts()
           .then((posts) => {
             const data = posts.documents || [];
-            // Store postData in sessionStorage
-            sessionStorage.setItem('postData', JSON.stringify(data));
+            // Store postData in localStorage
+            localStorage.setItem('postData', JSON.stringify(data));
             return data;
           })
           .catch((error) => {
@@ -35,7 +35,7 @@ function Login() {
             return []; // Return an empty array if there's an error
           });
   
-        console.log(postData);
+        // console.log(postData);
 
         if (userData) {
           // Dispatch actions to store user and post data in Redux

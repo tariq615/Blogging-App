@@ -16,7 +16,7 @@ export default function PostForm({ post }) {
         status: post?.status || "active",
       },
     });
-console.log(post);
+// console.log(post);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -31,15 +31,15 @@ console.log(post);
     }
   }, [userData]);
 
-  // Function to refresh posts in Redux and sessionStorage
+  // Function to refresh posts in Redux and localStorage
   const refreshPosts = async () => {
     try {
       const posts = await appwriteService.getPosts();
       const postData = posts.documents || [];
       // Update Redux store with latest posts
       dispatch(getPost(postData));
-      // Store posts in sessionStorage
-      sessionStorage.setItem('postData', JSON.stringify(postData));
+      // Store posts in localStorage
+      localStorage.setItem('postData', JSON.stringify(postData));
     } catch (error) {
       console.error('Error fetching posts:', error);
     }
