@@ -119,9 +119,9 @@ export default function PostForm({ post }) {
           {...register("title", { required: true })}
         />
         <Input
-          label="Slug :"
+          // label="Slug :"
           placeholder="Slug"
-          className="mb-4"
+          className="mb-4 hidden"
           {...register("slug", { required: true })}
           onInput={(e) => {
             setValue("slug", slugTransform(e.currentTarget.value), {
@@ -129,14 +129,6 @@ export default function PostForm({ post }) {
             });
           }}
         />
-        <RTE
-          label="Content :"
-          name="content"
-          control={control}
-          defaultValue={getValues("content")}
-        />
-      </div>
-      <div className="w-1/3 px-2">
         <Input
           label="Featured Image :"
           type="file"
@@ -149,10 +141,13 @@ export default function PostForm({ post }) {
             <img
               src={appwriteService.getFilePreview(post.featuredimage)}
               alt={post.title}
-              className="rounded-lg"
+              className="raspect-auto h-32 shadow"
             />
           </div>
         )}
+        
+      </div>
+      <div className="w-1/3 px-2">
         <SelectInput
           options={["active", "inactive"]}
           label="Status"
@@ -166,6 +161,14 @@ export default function PostForm({ post }) {
         >
           {post ? "Update" : "Submit"}
         </Button>
+      </div>
+      <div className="w-full">
+      <RTE
+          label="Content :"
+          name="content"
+          control={control}
+          defaultValue={getValues("content")}
+        />
       </div>
     </form>
   );
