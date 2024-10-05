@@ -53,7 +53,7 @@ export default function Post() {
     }
 
     return post ? (
-        <div className=" mt-24 border">
+        <div className=" mt-24 ">
             <div className="max-w-screen-lg  mx-auto p-5 sm:p-10 md:p-16 ">
           <div className="mb-10 rounded overflow-hidden flex flex-col mx-auto">
             <Link
