@@ -33,8 +33,15 @@ function App() {
     <Footer />
     </main>
     </div>
-  </div>) : 'loading'
-
+  </div>) : (
+        <div className="flex items-center justify-center h-screen">
+            <div className="relative flex flex-col items-center">
+                <img src="../../public/images/self/mylogo.webp" alt="Loading" className="w-32 h-32 animate-spin" />
+                <h1 className="-mt-4 text-xl font-bold text-gray-700">Loading...</h1>
+            </div>
+        </div>
+        // 'loading'
+    )
 }
 
 export default App
