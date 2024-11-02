@@ -13,7 +13,6 @@ export default function Post() {
     const dispatch = useDispatch();
 
     const userData = useSelector((state) => state.auth.userData);
-    
     const isAuthor = post && userData ? post.userid === userData.$id : false;
 
     useEffect(() => {
@@ -25,28 +24,39 @@ export default function Post() {
         } else navigate("/");
     }, [slug, navigate]);
 
-    const deletePost = () => {
-        appwriteService.deletePost(post.$id).then((status) => {
+    const deletePost = async () => {
+        if (!post) return; // Ensure there is a post to delete
+
+        try {
+            // Step 1: Delete post from backend
+            const status = await appwriteService.deletePost(post.$id);
+            
             if (status) {
-                appwriteService.deleteFile(post.featuredimage);
+                // Step 2: Delete post image from backend if necessary
+                await appwriteService.deleteFile(post.featuredimage);
+
+                // Step 3: Remove post from Redux store
                 dispatch(removePost(post.$id));
 
-                // Update sessionStorage
-                const storedPosts = sessionStorage.getItem('postData');
+                // Step 4: Update localStorage
+                const storedPosts = localStorage.getItem("postData");
                 if (storedPosts) {
                     const parsedPosts = JSON.parse(storedPosts);
                     const updatedPosts = parsedPosts.filter((p) => p.$id !== post.$id);
-                    sessionStorage.setItem('postData', JSON.stringify(updatedPosts));
+                    localStorage.setItem("postData", JSON.stringify(updatedPosts));
                 }
 
+                // Step 5: Navigate back to the main page
                 navigate("/");
             }
-        });
+        } catch (error) {
+            console.error("Error deleting post:", error);
+        }
     };
 
     return post ? (
         <div className="mt-24">
-            <div className="max-w-screen-xl  mx-auto p-5 sm:p-10 md:p-16">
+            <div className="max-w-screen-xl mx-auto p-5 sm:p-10 md:p-16">
                 <div className="mb-10 rounded overflow-hidden flex flex-col mx-auto">
                     {/* Post Title */}
                     <Link
@@ -57,7 +67,7 @@ export default function Post() {
                     </Link>
 
                     {/* Image Section */}
-                    <div className="relative mb-4 ">
+                    <div className="relative mb-4">
                         <Link to="">
                             <img
                                 className="w-full lg:h-[96vh] object-contain rounded-lg"

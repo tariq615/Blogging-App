@@ -56,7 +56,7 @@ function AllPosts() {
   } else if (authStatus) {
   return (
     <Container>
-      <div className="flex flex-wrap gap-5 content-center justify-center py-4 mt-24">
+      <div className="flex flex-wrap gap-5 content-center justify-center py-2 mt-24">
         {myPosts.map((post) => (
           <PostCard {...post} />
         ))}

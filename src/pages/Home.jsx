@@ -8,7 +8,7 @@ function Home() {
   const postData = useSelector((state) => state.post.posts);
   const authStatus = useSelector((state) => state.auth.status);
 
-  // In case of reload 
+  // In case of reload
   useEffect(() => {
     const hasLoggedIn = sessionStorage.getItem("hasLoggedIn");
     if (hasLoggedIn === "true") {
@@ -16,7 +16,6 @@ function Home() {
       window.location.reload(); // Reload only once after login
     }
   }, []);
-
 
   // postsData function now defined in the same file
   const postsData = async () => {
@@ -41,7 +40,6 @@ function Home() {
       });
     }
   }, [dispatch, authStatus]);
-  
 
   if (authStatus && postData.length === 0) {
     return (
@@ -59,13 +57,11 @@ function Home() {
     );
   } else if (authStatus) {
     return (
-        <Container>
-          <div className="flex flex-wrap gap-5 content-center justify-center py-4 mt-24">
-            {postData.map((post) => (
-                <PostCard {...post} />
-              ))}
-              </div>
-        </Container>
+      <div className="flex flex-wrap gap-5 content-center justify-center py-2 mt-24">
+        {postData.map((post) => (
+          <PostCard {...post} />
+        ))}
+      </div>
     );
   } else {
     return (
