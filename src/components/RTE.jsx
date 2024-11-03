@@ -5,7 +5,7 @@ import conf from "../conf/conf.js";
 
 let key = conf.rteApiKey
 
-export default function RTE({ name, control, label, defaultValue = "", apikey= {key} }) {
+export default function RTE({ name, control, label, defaultValue = ""}) {
   // console.log(conf.rteApiKey);
   
   return (
@@ -18,7 +18,7 @@ export default function RTE({ name, control, label, defaultValue = "", apikey= {
         render={({ field: { onChange } }) => (
           <Editor
             initialValue={defaultValue}
-            apiKey= {apikey}
+            apiKey= {key}
             init={{
               initialValue: defaultValue,
               height: 500,
