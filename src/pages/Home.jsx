@@ -57,7 +57,7 @@ function Home() {
     );
   } else if (authStatus) {
     return (
-      <div className="flex flex-wrap gap-5 content-center justify-center py-2 mt-24">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-[repeat(auto-fill,minmax(250px,1fr))] px-2 mt-28">
         {postData.map((post) => (
           <PostCard {...post} />
         ))}
