@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Container, PostCard } from "../components";
 import { useSelector, useDispatch } from "react-redux";
 import { getPost } from "../store/postSlice";
+import appwriteService from "../appwrite/config"
 
 function Home() {
   const dispatch = useDispatch();
@@ -29,17 +30,30 @@ function Home() {
   };
 
   useEffect(() => {
-    // Fetch posts from localStorage or API if necessary
-    const storedPosts = localStorage.getItem("postData");
-    if (storedPosts) {
-      dispatch(getPost(JSON.parse(storedPosts)));
-    } else if (authStatus) {
-      postsData().then((posts) => {
-        dispatch(getPost(posts));
-        localStorage.setItem("postData", JSON.stringify(posts));
-      });
-    }
+    const fetchPosts = async () => {
+      if (authStatus) {
+        try {
+          const posts = await postsData(); // Fetch posts from API
+          if (posts.length > 0) {
+            dispatch(getPost(posts)); // Update Redux store
+            localStorage.setItem("postData", JSON.stringify(posts)); // Store in localStorage
+          }
+        } catch (error) {
+          console.error("Error fetching posts in polling:", error); // Log errors
+        }
+      }
+    };
+  
+    // Initial fetch
+    fetchPosts();
+  
+    // Polling for updates every 30 seconds
+    const interval = setInterval(fetchPosts, 30000);
+  
+    // Cleanup on component unmount
+    return () => clearInterval(interval);
   }, [dispatch, authStatus]);
+  
 
   // console.log(postData);
 
