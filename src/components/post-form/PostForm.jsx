@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import appwriteService from "../../appwrite/config";
 import { useForm } from "react-hook-form";
 import { SelectInput, Button, Input, RTE } from "../";
@@ -7,28 +7,35 @@ import { useNavigate } from "react-router-dom";
 import { getPost } from "../../store/postSlice"; // Import the action to update posts in Redux
 
 export default function PostForm({ post }) {
-  const { register, handleSubmit, watch, setValue, control, getValues } =
-    useForm({
-      defaultValues: {
-        title: post?.title || "",
-        slug: post?.$id || "",
-        content: post?.content || "",
-        status: post?.status || "active",
-      },
-    });
-// console.log(post);
-
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    control,
+    getValues,
+    formState: { errors: formErrors },
+  } = useForm({
+    defaultValues: {
+      title: post?.title || "",
+      slug: post?.$id || "",
+      content: post?.content || "",
+      status: post?.status || "active",
+    },
+  });
+  // console.log(post);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData); // Get user data from Redux
 
   // Ensure that user data is available
   useEffect(() => {
-    if (userData) {
-      console.log("UserData available: ", userData);
-    } else {
-      console.log('No user data found.');
-    }
+    // if (userData) {
+    //   console.log("UserData available: ", userData);
+    // } else {
+    //   console.log('No user data found.');
+    // }
   }, [userData]);
 
   // Function to refresh posts in Redux and localStorage
@@ -39,14 +46,15 @@ export default function PostForm({ post }) {
       // Update Redux store with latest posts
       dispatch(getPost(postData));
       // Store posts in localStorage
-      localStorage.setItem('postData', JSON.stringify(postData));
+      localStorage.setItem("postData", JSON.stringify(postData));
     } catch (error) {
-      console.error('Error fetching posts:', error);
+      console.error("Error fetching posts:", error);
     }
   };
 
   // Submit function to create or update a post
   const submit = async (data) => {
+    setError("");
     try {
       let file;
       if (data.image[0]) {
@@ -56,7 +64,6 @@ export default function PostForm({ post }) {
         }
       }
 
-      
       if (post) {
         // Update existing post
         const updatedPost = await appwriteService.updatePost(post.$id, {
@@ -71,7 +78,7 @@ export default function PostForm({ post }) {
       } else {
         // Create new post
         if (file) {
-          const fileId = file.$id
+          const fileId = file.$id;
           data.featuredimage = fileId;
         }
 
@@ -86,16 +93,20 @@ export default function PostForm({ post }) {
         }
       }
     } catch (error) {
-      console.error('Error submitting post:', error);
+      console.error("Error submitting post:", error);
+      setError(error.message);
     }
   };
 
   const slugTransform = useCallback((value) => {
-    return value
-      ?.trim()
-      .toLowerCase()
-      .replace(/[^a-zA-Z\d\s]+/g, "-")
-      .replace(/\s/g, "-") || "";
+    return (
+      value
+        ?.trim()
+        .toLowerCase()
+        .replace(/[^a-zA-Z\d\s]+/g, "-")
+        .slice(0, 36)
+        .replace(/\s/g, "-") || ""
+    );
   }, []);
 
   useEffect(() => {
@@ -110,14 +121,19 @@ export default function PostForm({ post }) {
   }, [watch, setValue, slugTransform]);
 
   return (
-    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap mt-14">
+    <form onSubmit={handleSubmit(submit)} className="flex flex-wrap mt-20">
       <div className="w-2/3 px-2">
         <Input
           label="Title :"
           placeholder="Title"
           className="mb-4"
-          {...register("title", { required: true })}
+          {...register("title", { required: "title is required" })}
         />
+        {formErrors.title && (
+          <p className="text-red-500 text-sm mt-1 font-bold">
+            {formErrors.title.message}
+          </p>
+        )}
         <Input
           // label="Slug :"
           placeholder="Slug"
@@ -134,8 +150,13 @@ export default function PostForm({ post }) {
           type="file"
           className="mb-4"
           accept="image/png, image/jpg, image/jpeg, image/gif"
-          {...register("image", { required: !post })}
+          {...register("image", { required: !post ? "image is required" : false })}
         />
+        {formErrors.image && (
+          <p className="text-red-500 text-sm mt-1 font-bold">
+            {formErrors.image.message}
+          </p>
+        )}
         {post && (
           <div className="w-full mb-4">
             <img
@@ -145,7 +166,7 @@ export default function PostForm({ post }) {
             />
           </div>
         )}
-        
+        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
       </div>
       <div className="w-1/3 px-2">
         <SelectInput
@@ -163,7 +184,7 @@ export default function PostForm({ post }) {
         </Button>
       </div>
       <div className="w-full">
-      <RTE
+        <RTE
           label="Content :"
           name="content"
           control={control}

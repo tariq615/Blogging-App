@@ -31,7 +31,8 @@ export class Service{
                 }
             )            
         } catch (error) {
-            console.log("Appwrite serive :: createPost :: error", error);
+            // console.log("Appwrite serive :: createPost :: error", error.message);
+            throw new Error(error.message)
         }
      }
 
@@ -49,7 +50,7 @@ export class Service{
                 }
             )
         } catch (error) {
-            console.log("Appwrite serive :: updatePost :: error", error);
+            console.log("Appwrite serive :: updatePost :: error", error.message);
         }
      }
 
@@ -62,7 +63,7 @@ export class Service{
             )
             return true
         } catch (error) {
-            console.log('Appwrite srive :: deletepost :: error' , error)
+            console.log('Appwrite srive :: deletepost :: error' , error.message)
             return false
         }
      }
@@ -75,12 +76,12 @@ export class Service{
                 slug
             ) 
         } catch (error) {
-            console.log('Appwrite srive :: getPost :: error' , error)
+            console.log('Appwrite srive :: getPost :: error' , error.message)
             return false
         }
      }
 
-     async getPosts(queries = [Query.equal("status","active")]){
+     async getPosts(queries = []){               // Query.equal("status","active")
         try {
             return await this.databases.listDocuments(
                 conf.appwriteDatabaseId,
@@ -88,7 +89,7 @@ export class Service{
                 queries
             )
         } catch (error) {
-            console.log('Appwrite srive :: getPosts :: error' , error)
+            console.log('Appwrite srive :: getPosts :: error' , error.message)
             return false
         }
      }
@@ -103,7 +104,7 @@ export class Service{
                 file
             )
         } catch (error) {
-            console.log('Appwrite srive :: uploadFile :: error' , error)
+            console.log('Appwrite srive :: uploadFile :: error' , error.message)
             return false
         }
      }
@@ -116,7 +117,7 @@ export class Service{
         )
         return true
         } catch (error) {
-            console.log('Appwrite srive :: deleteFile :: error' , error)
+            console.log('Appwrite srive :: deleteFile :: error' , error.message)
             return false
         }
     }

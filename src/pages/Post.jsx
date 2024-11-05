@@ -7,95 +7,92 @@ import { useSelector, useDispatch } from "react-redux";
 import { removePost } from "../store/postSlice";
 
 export default function Post() {
-    const [post, setPost] = useState(null);
-    const { slug } = useParams();
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
+  const [post, setPost] = useState(null);
+  const { slug } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const userData = useSelector((state) => state.auth.userData);
-    const isAuthor = post && userData ? post.userid === userData.$id : false;
+  const userData = useSelector((state) => state.auth.userData);
+  const isAuthor = post && userData ? post.userid === userData.$id : false;
 
-    useEffect(() => {
-        if (slug) {
-            appwriteService.getPost(slug).then((post) => {
-                if (post) setPost(post);
-                else navigate("/");
-            });
-        } else navigate("/");
-    }, [slug, navigate]);
+  useEffect(() => {
+    if (slug) {
+      appwriteService.getPost(slug).then((post) => {
+        if (post) setPost(post);
+        else navigate("/");
+      });
+    } else navigate("/");
+  }, [slug, navigate]);
 
-    const deletePost = async () => {
-        if (!post) return; // Ensure there is a post to delete
+  const deletePost = async () => {
+    if (!post) return; // Ensure there is a post to delete
 
-        try {
-            // Step 1: Delete post from backend
-            const status = await appwriteService.deletePost(post.$id);
-            
-            if (status) {
-                // Step 2: Delete post image from backend if necessary
-                await appwriteService.deleteFile(post.featuredimage);
+    try {
+      // Step 1: Delete post from backend
+      const status = await appwriteService.deletePost(post.$id);
 
-                // Step 3: Remove post from Redux store
-                dispatch(removePost(post.$id));
+      if (status) {
+        // Step 2: Delete post image from backend if necessary
+        await appwriteService.deleteFile(post.featuredimage);
 
-                // Step 4: Update localStorage
-                const storedPosts = localStorage.getItem("postData");
-                if (storedPosts) {
-                    const parsedPosts = JSON.parse(storedPosts);
-                    const updatedPosts = parsedPosts.filter((p) => p.$id !== post.$id);
-                    localStorage.setItem("postData", JSON.stringify(updatedPosts));
-                }
+        // Step 3: Remove post from Redux store
+        dispatch(removePost(post.$id));
 
-                // Step 5: Navigate back to the main page
-                navigate("/");
-            }
-        } catch (error) {
-            console.error("Error deleting post:", error);
+        // Step 4: Update localStorage
+        const storedPosts = localStorage.getItem("postData");
+        if (storedPosts) {
+          const parsedPosts = JSON.parse(storedPosts);
+          const updatedPosts = parsedPosts.filter((p) => p.$id !== post.$id);
+          localStorage.setItem("postData", JSON.stringify(updatedPosts));
         }
-    };
 
-    return post ? (
-        <div className="mt-24">
-            <div className="max-w-screen-xl mx-auto p-5 sm:p-10 md:p-16">
-                <div className="mb-10 rounded overflow-hidden flex flex-col mx-auto">
-                    {/* Post Title */}
-                    <Link
-                        to=""
-                        className="max-w-3xl mx-auto text-xl sm:text-4xl font-semibold inline-block hover:text-indigo-600 transition duration-500 ease-in-out mb-2"
-                    >
-                        {post.title}
-                    </Link>
+        // Step 5: Navigate back to the main page
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Error deleting post:", error);
+    }
+  };
 
-                    {/* Image Section */}
-                    <div className="relative mb-4">
-                        <Link to="">
-                            <img
-                                className="w-full lg:h-[96vh] object-contain rounded-lg"
-                                src={appwriteService.getFilePreview(post.featuredimage)}
-                                alt={post.title}
-                            />
-                        </Link>
-                    </div>
+  return post ? (
+    <div className="mt-24">
+      <div className="max-w-screen-xl mx-auto p-5 sm:p-10 md:p-16">
+        <div className="mb-10 rounded overflow-hidden flex flex-col mx-auto">
+          {/* Post Title */}
 
-                    {/* Edit/Delete Buttons */}
-                    {isAuthor && (
-                        <div className="flex justify-end space-x-2 mt-2">
-                            <Link to={`/edit-post/${post.$id}`}>
-                                <Button bgColor="bg-green-500">Edit</Button>
-                            </Link>
-                            <Button bgColor="bg-red-500" onClick={deletePost}>
-                                Delete
-                            </Button>
-                        </div>
-                    )}
+          <h2 className="py-4 max-w-3xl text-xl sm:text-4xl font-semibold inline-block break-words">
+            {post.title}
+          </h2>
 
-                    {/* Post Content */}
-                    <p className="text-gray-700 py-5 text-base leading-8">
-                        {parse(post.content)}
-                    </p>
-                    <hr />
-                </div>
+          {/* Image Section */}
+          <div className="relative mb-4">
+            <img
+              className="w-full lg:h-[96vh] object-contain rounded-lg"
+              src={appwriteService.getFilePreview(post.featuredimage)}
+              alt={post.title}
+            />
+          </div>
+
+          {/* Edit/Delete Buttons */}
+          {isAuthor && (
+            <div className="flex justify-end space-x-2 mt-2">
+              <Link to={`/edit-post/${post.$id}`}>
+                <Button bgColor="bg-green-500">Edit</Button>
+              </Link>
+              <Button bgColor="bg-red-500" onClick={deletePost}>
+                Delete
+              </Button>
             </div>
+          )}
+
+          {/* Post Content */}
+          <div className="text-gray-700 py-5 text-base leading-8">
+            {parse(post.content)}
+          </div>
+
+          <hr />
         </div>
-    ) : null;
+      </div>
+    </div>
+  ) : null;
 }

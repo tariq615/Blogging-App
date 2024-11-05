@@ -41,7 +41,11 @@ function Home() {
     }
   }, [dispatch, authStatus]);
 
-  if (authStatus && postData.length === 0) {
+  // console.log(postData);
+
+  const data = postData.filter((posts) => posts.status === "active");
+
+  if (authStatus && data.length === 0) {
     return (
       <div className="w-full py-8 mt-24 text-center">
         <Container>
@@ -58,10 +62,16 @@ function Home() {
   } else if (authStatus) {
     return (
       <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-[repeat(auto-fill,minmax(250px,1fr))] px-2 mt-28">
-        {postData.map((post) => (
-          <PostCard {...post} />
-        ))}
+  {data
+    .slice()
+    .reverse()
+    .map((post, index) => (
+      <div key={index} className="">
+        <PostCard {...post} />
       </div>
+    ))}
+</div>
+
     );
   } else {
     return (

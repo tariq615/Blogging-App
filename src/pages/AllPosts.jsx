@@ -16,7 +16,7 @@ function AllPosts() {
   useEffect(() => {
     // Check if post data exists in localStorage
     const storedPosts = localStorage.getItem("postData");
-
+    
     if (storedPosts && userData) {
       // Use cached posts and filter to show only the current user's posts
       const parsedPosts = JSON.parse(storedPosts);
@@ -56,12 +56,13 @@ function AllPosts() {
   } else if (authStatus) {
   return (
     <Container>
-      <div className="flex flex-wrap gap-5 content-center justify-center py-2 mt-24">
-        {myPosts.map((post) => (
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-[repeat(auto-fill,minmax(250px,1fr))] px-2 mt-28">
+        {myPosts.slice().reverse().map((post, index) => (
+          <div key={index}>
           <PostCard {...post} />
+          </div>
         ))}
       </div>
-
       <Outlet />
     </Container>
   );
