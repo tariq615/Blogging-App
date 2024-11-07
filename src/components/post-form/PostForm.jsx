@@ -59,6 +59,7 @@ export default function PostForm({ post }) {
       let file;
       if (data.image[0]) {
         file = await appwriteService.uploadFile(data.image[0]);
+        console.log(file);
         if (post) {
           await appwriteService.deleteFile(post.featuredimage); // Delete old image if post is updated
         }
@@ -149,8 +150,10 @@ export default function PostForm({ post }) {
           label="Featured Image :"
           type="file"
           className="mb-4"
-          accept="image/png, image/jpg, image/jpeg, image/gif"
-          {...register("image", { required: !post ? "image is required" : false })}
+          accept="image/png, image/jpg, image/jpeg, image/gif, image/webp"
+          {...register("image", {
+            required: !post ? "image is required" : false,
+          })}
         />
         {formErrors.image && (
           <p className="text-red-500 text-sm mt-1 font-bold">

@@ -55,7 +55,7 @@ function Home() {
   }, [dispatch, authStatus]);
   
 
-  // console.log(postData);
+  console.log(postData);
 
   const data = postData.filter((posts) => posts.status === "active");
 
