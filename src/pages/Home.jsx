@@ -48,7 +48,7 @@ function Home() {
     fetchPosts();
   
     // Polling for updates every 30 seconds
-    const interval = setInterval(fetchPosts, 30000);
+    const interval = setInterval(fetchPosts, 5000);
   
     // Cleanup on component unmount
     return () => clearInterval(interval);
