@@ -8,15 +8,7 @@ function Home() {
   const dispatch = useDispatch();
   const postData = useSelector((state) => state.post.posts);
   const authStatus = useSelector((state) => state.auth.status);
-
-  // In case of reload
-  useEffect(() => {
-    const hasLoggedIn = sessionStorage.getItem("hasLoggedIn");
-    if (hasLoggedIn === "true") {
-      sessionStorage.removeItem("hasLoggedIn"); // Clear the flag
-      window.location.reload(); // Reload only once after login
-    }
-  }, []);
+  // const auth = useSelector((state) => state.auth.userData);
 
   // postsData function now defined in the same file
   const postsData = async () => {
@@ -55,8 +47,9 @@ function Home() {
   }, [dispatch, authStatus]);
   
 
-  console.log(postData);
-
+  // console.log(postData);
+  // console.log(auth);
+  
   const data = postData.filter((posts) => posts.status === "active");
 
   if (authStatus && data.length === 0) {

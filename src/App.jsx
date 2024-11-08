@@ -34,11 +34,10 @@ function App() {
     </main>
     </div>
   </div>) : (
-        <div className="flex items-center justify-center h-screen">
-            <div className="relative flex flex-col items-center">
-                <h1 className="-mt-4 text-xl font-bold text-gray-700">Loading...</h1>
-            </div>
-        </div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+        <div className="loader border-t-4 border-blue-500 border-solid rounded-full w-16 h-16 animate-spin"></div>
+        <p className="mt-4 text-white"> Loading...</p>
+      </div>
         // 'loading'
     )
 }

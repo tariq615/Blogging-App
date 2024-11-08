@@ -16,12 +16,28 @@ export default function Post() {
   const isAuthor = post && userData ? post.userid === userData.$id : false;
 
   useEffect(() => {
+    const storedPosts = localStorage.getItem("postData");
+    if (storedPosts) {
+      const parsedPosts = JSON.parse(storedPosts);
+      const postFromLocalStorage = parsedPosts.find((p) => p.slug === slug);
+      if (postFromLocalStorage) {
+        setPost(postFromLocalStorage); // Use post from localStorage if available
+        return;
+      }
+    }
+
+    // Fallback to API call if the post is not found in localStorage
     if (slug) {
-      appwriteService.getPost(slug).then((post) => {
-        if (post) setPost(post);
-        else navigate("/");
+      appwriteService.getPost(slug).then((fetchedPost) => {
+        if (fetchedPost) {
+          setPost(fetchedPost); // Set post if fetched from API
+        } else {
+          navigate("/"); // Navigate to homepage if post doesn't exist
+        }
       });
-    } else navigate("/");
+    } else {
+      navigate("/"); // Navigate to homepage if no slug
+    }
   }, [slug, navigate]);
 
   const deletePost = async () => {
@@ -59,7 +75,6 @@ export default function Post() {
       <div className="max-w-screen-xl mx-auto p-5 sm:p-10 md:p-16">
         <div className="mb-10 rounded overflow-hidden flex flex-col mx-auto">
           {/* Post Title */}
-
           <h2 className="py-4 max-w-3xl text-xl sm:text-4xl font-semibold inline-block break-words">
             {post.title}
           </h2>

@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux"; // Import useSelector to access Redux state
+import { useSelector } from "react-redux";
 import { Container, PostCard } from "../components";
 import appwriteService from "../appwrite/config";
-import { Outlet } from "react-router-dom";
 import { Query } from "appwrite";
+import { Outlet } from "react-router-dom";
 
 function AllPosts() {
-  // State to hold user's posts
-  const [myPosts, setMyPosts] = useState([]);
+  const [myPosts, setMyPosts] = useState([]);  // State to hold user's posts
   const [loading, setLoading] = useState(true); // Loading state
   const [error, setError] = useState(null); // Error state
 
   // Get userData and authStatus from Redux store
   const userData = useSelector((state) => state.auth.userData);
   const authStatus = useSelector((state) => state.auth.status);
-
+  
   useEffect(() => {
     const fetchPosts = async () => {
-      setLoading(true); // Set loading to true before fetching
-      setError(null); // Reset error state
+      setLoading(true);  // Set loading state to true before fetching posts
+      setError(null);    // Reset any previous errors
 
       try {
         // Check if post data exists in localStorage
@@ -27,14 +26,19 @@ function AllPosts() {
         if (storedPosts && userData) {
           // Use cached posts and filter to show only the current user's posts
           const parsedPosts = JSON.parse(storedPosts);
+          
           const userPosts = parsedPosts.filter(
             (post) => post.userid === userData.$id
           );
-          setMyPosts(userPosts);
+
+          setMyPosts(userPosts);  // Set myPosts state with filtered posts
         } else if (userData) {
-          // Fetch posts from API if no cached data exists
+          // Fetch posts from Appwrite if no cached data exists
           const posts = await appwriteService.getPosts([Query.equal("userid", userData.$id)]);
           const postData = posts.documents || [];
+          
+          console.log("Fetched posts:", postData);  // Log fetched posts
+          
           setMyPosts(postData); // Update state with fetched posts
           localStorage.setItem("postData", JSON.stringify(postData)); // Cache posts in localStorage
         }
@@ -46,24 +50,26 @@ function AllPosts() {
       }
     };
 
-    if (authStatus) {
+    if (authStatus && userData) {
       fetchPosts();
     } else {
-      setMyPosts([]); // Clear posts if the user is not authenticated
-      setLoading(false); // Set loading to false if not authenticated
+      setMyPosts([]);  // Clear posts if not authenticated
+      setLoading(false);
     }
-  }, [userData, authStatus]); // Ensure useEffect runs when userData or authStatus changes
+  }, [userData, authStatus]);  // Effect depends on userData and authStatus
 
+  // Handle loading state
   if (loading) {
     return (
       <div className="w-full py-8 mt-24 text-center">
         <Container>
-        <h1 className="-mt-4 text-xl font-bold text-gray-700">Loading...</h1>
+          <h1 className="-mt-4 text-xl font-bold text-gray-700">Loading...</h1>
         </Container>
       </div>
     );
   }
 
+  // Handle error state
   if (error) {
     return (
       <div className="w-full py-8 mt-24 text-center">
@@ -74,6 +80,7 @@ function AllPosts() {
     );
   }
 
+  // Handle case when no posts are found
   if (authStatus && myPosts.length === 0) {
     return (
       <div className="w-full py-8 mt-24 text-center">

@@ -23,13 +23,15 @@ export default function PostForm({ post }) {
       status: post?.status || "active",
     },
   });
-  // console.log(post);
+
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Added loading state
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const userData = useSelector((state) => state.auth.userData); // Get user data from Redux
 
   // Ensure that user data is available
+  
   useEffect(() => {
     // if (userData) {
     //   console.log("UserData available: ", userData);
@@ -55,6 +57,7 @@ export default function PostForm({ post }) {
   // Submit function to create or update a post
   const submit = async (data) => {
     setError("");
+    setLoading(true); // Set loading to true when submission starts
     try {
       let file;
       if (data.image[0]) {
@@ -96,6 +99,8 @@ export default function PostForm({ post }) {
     } catch (error) {
       console.error("Error submitting post:", error);
       setError(error.message);
+    } finally {
+      setLoading(false); // Set loading to false after submission finishes
     }
   };
 
@@ -123,6 +128,12 @@ export default function PostForm({ post }) {
 
   return (
     <form onSubmit={handleSubmit(submit)} className="flex flex-wrap mt-20">
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="loader border-t-4 border-blue-500 border-solid rounded-full w-16 h-16 animate-spin"></div>
+          <p className="mt-4 text-white">Submitting...</p>
+        </div>
+      )}
       <div className="w-2/3 px-2">
         <Input
           label="Title :"
