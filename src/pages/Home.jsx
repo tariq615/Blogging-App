@@ -3,8 +3,10 @@ import { Container, PostCard } from "../components";
 import { useSelector, useDispatch } from "react-redux";
 import { getPost } from "../store/postSlice";
 import appwriteService from "../appwrite/config"
+import { useNavigate } from "react-router-dom";
 
 function Home() {
+  const navigate = useNavigate()
   const dispatch = useDispatch();
   const postData = useSelector((state) => state.post.posts);
   const authStatus = useSelector((state) => state.auth.status);
@@ -40,7 +42,7 @@ function Home() {
     fetchPosts();
   
     // Polling for updates every 30 seconds
-    const interval = setInterval(fetchPosts, 5000);
+    const interval = setInterval(fetchPosts, 30000);
   
     // Cleanup on component unmount
     return () => clearInterval(interval);
@@ -50,6 +52,17 @@ function Home() {
   // console.log(postData);
   // console.log(auth);
   
+  useEffect(() => {
+    if (!authStatus) {
+      const interval = setInterval(() => {
+        navigate("/login");
+      }, 2000);
+
+      return () => clearInterval(interval);
+      // navigate("/login")
+    }
+  }, [authStatus, navigate]);
+
   const data = postData.filter((posts) => posts.status === "active");
 
   if (authStatus && data.length === 0) {
@@ -80,7 +93,8 @@ function Home() {
 </div>
 
     );
-  } else {
+  } 
+  else {
     return (
       <div className="w-full py-8 mt-36 text-center">
         <Container>
